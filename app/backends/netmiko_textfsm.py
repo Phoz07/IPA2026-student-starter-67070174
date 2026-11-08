@@ -31,19 +31,31 @@ def _parsed(output):
     return output if isinstance(output, list) else []
 
 
+def _parse_show_ip_interface(raw, command):
+    """Parse `show ip interface <name>` output with TextFSM.
+
+    IOS answers "% Invalid input ..." when the interface does not exist.
+    That text is not parseable (TextFSM raises), so treat it as no records.
+    """
+    if not raw.strip() or raw.lstrip().startswith("%") or "% Invalid input" in raw:
+        return []
+    from netmiko.utilities import get_structured_data
+
+    return _parsed(get_structured_data(raw, platform="cisco_ios", command=command))
+
+
 def _default_get(router, interface_name):
     validate_interface_name(interface_name)
     connection = _connect(router)
     try:
-        ip_info = connection.send_command(
-            f"show ip interface {interface_name}", use_textfsm=True
-        )
+        command = f"show ip interface {interface_name}"
+        ip_info = _parse_show_ip_interface(connection.send_command(command), command)
         descriptions = connection.send_command(
             "show interfaces description", use_textfsm=True
         )
     finally:
         connection.disconnect()
-    return _parsed(ip_info), _parsed(descriptions)
+    return ip_info, _parsed(descriptions)
 
 
 def _same_interface(short_or_long, interface_name):
