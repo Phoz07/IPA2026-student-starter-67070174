@@ -1,0 +1,11 @@
+desired:
+  name: Loopback77
+  ipv4: 10.77.0.1/32
+  description: IPA2026-STUDENT
+  admin_state: up
+
+current:
+  name: Loopback77
+  ipv4: 10.77.0.9/32
+  description: IPA2026-STUDENT
+  admin_state: up

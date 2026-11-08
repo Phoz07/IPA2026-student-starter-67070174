@@ -1,0 +1,16 @@
+fixture: 07-update-null-description.yaml
+
+expected:
+  status: ok
+  result: planned
+  operation: update
+  changes:
+    ipv4:
+      from: null
+      to: 10.77.0.1/32
+    description:
+      from: null
+      to: IPA2026-STUDENT
+    admin_state:
+      from: down
+      to: up

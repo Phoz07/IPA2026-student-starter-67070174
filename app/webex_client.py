@@ -5,25 +5,45 @@ import os
 import requests
 
 WEBEX_API_BASE = 'https://webexapis.com/v1'
+TIMEOUT = 10
+
 
 class WebexClient:
     def __init__(self, token=None, session=None):
-        # TODO: implement according to Part 4 specification
-        raise NotImplementedError
+        self._token = token
+        self.session = session if session is not None else requests.Session()
 
     @property
     def headers(self):
-        # TODO: implement according to Part 4 specification
-        raise NotImplementedError
+        token = self._token or os.environ.get('WEBEX_BOT_TOKEN')
+        if not token:
+            raise PermissionError('WEBEX_BOT_TOKEN is not set')
+        return {'Authorization': f'Bearer {token}'}
 
     def get_message(self, message_id):
-        # TODO: implement according to Part 4 specification
-        raise NotImplementedError
+        response = self.session.get(
+            f'{WEBEX_API_BASE}/messages/{message_id}',
+            headers=self.headers,
+            timeout=TIMEOUT,
+        )
+        response.raise_for_status()
+        return response.json()
 
     def download_file(self, file_url):
-        # TODO: implement according to Part 4 specification
-        raise NotImplementedError
+        response = self.session.get(
+            file_url,
+            headers=self.headers,
+            timeout=TIMEOUT,
+        )
+        response.raise_for_status()
+        return response.content
 
     def send_message(self, room_id, text):
-        # TODO: implement according to Part 4 specification
-        raise NotImplementedError
+        response = self.session.post(
+            f'{WEBEX_API_BASE}/messages',
+            headers=self.headers,
+            json={'roomId': room_id, 'text': text},
+            timeout=TIMEOUT,
+        )
+        response.raise_for_status()
+        return response.json()
